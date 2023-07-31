@@ -1,6 +1,6 @@
 from uuid import uuid4
 
-from fastapi import FastAPI, Form, HTTPException
+from fastapi import FastAPI, Form, HTTPException, Cookie
 from fastapi.responses import JSONResponse
 
 from models import Feedback, UserCreate
@@ -62,6 +62,7 @@ async def read_product(product_id: int):
     return {'Error': "Product not found"}
 
 
+# Поиск по товарам
 @app.get('/products/search')
 async def product_search(keyword: str, category: str = None, limit: int = 10):
     # Создаем пустой список для хранения найденных продуктов
@@ -77,6 +78,7 @@ async def product_search(keyword: str, category: str = None, limit: int = 10):
     return matches_products
 
 
+# авторизация по логин\паролю с присвоением куков на 24часа
 @app.post("/login")
 async def login(username: str = Form(...), password: str = Form(...)):
     if username not in users_db or users_db[username] != password:
@@ -92,4 +94,14 @@ async def login(username: str = Form(...), password: str = Form(...)):
     print(session_db)
     return responce
 
-# @app.get("/user")
+
+@app.get("/user")
+async def get_user_with_coockie(session_token: str = Cookie(None)):
+    # Проверяем, есть ли session_token в cookie или он None
+    if session_token is None or session_token not in session_db or session_db[session_token] not in users_db:
+        # Если session_token отсутствует -401 ошибка
+        # Проверяем, есть ли session_token в базе данных сессий и пользователь в базе данных пользователей
+        # Если session_token отсутствует в бд сессий или пользователь отсутствует в базе данных пользователей
+        raise HTTPException(status_code=401, detail="Пользователь не авторизован")
+    username = session_db[session_token]
+    return {'username': username}
