@@ -1,9 +1,8 @@
 from pydantic import BaseModel, EmailStr
 
 
-
-class UserRegister(BaseModel):
-    name: str
+class UserAuth(BaseModel):
+    username: str
     password: str
 
 
@@ -24,3 +23,14 @@ class Products(BaseModel):
     name: str
     category: str
     price: float
+
+
+def get_user_from_db(username: str):
+    for user in USER_DATA:
+        if user.username == username:
+            return user
+    return None
+
+
+USER_DATA = [UserAuth(**{"username": "user1", "password": "pass1"}),
+             UserAuth(**{"username": "user2", "password": "pass2"})]

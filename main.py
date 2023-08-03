@@ -1,9 +1,10 @@
 from uuid import uuid4
 
-from fastapi import FastAPI, Form, HTTPException, Cookie
+from fastapi import FastAPI, Form, HTTPException, Cookie, Depends
 from fastapi.responses import JSONResponse
 
-from models import Feedback, UserCreate
+from auth import auth_user
+from models import Feedback, UserCreate, UserAuth
 from products import sample_products
 
 app = FastAPI()
@@ -105,3 +106,8 @@ async def get_user_with_coockie(session_token: str = Cookie(None)):
         raise HTTPException(status_code=401, detail="Пользователь не авторизован")
     username = session_db[session_token]
     return {'username': username}
+
+
+@app.get('/login')
+async def get_user_auth(user: UserAuth = Depends(auth_user)):
+    return {"message": "You got my secret, welcome", "user_info": user.username}
