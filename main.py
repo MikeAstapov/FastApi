@@ -1,5 +1,6 @@
 from uuid import uuid4
 
+import uvicorn
 from fastapi import FastAPI, Form, HTTPException, Cookie, Depends
 from fastapi.responses import JSONResponse
 
@@ -111,3 +112,7 @@ async def get_user_with_coockie(session_token: str = Cookie(None)):
 @app.get('/login')
 async def get_user_auth(user: UserAuth = Depends(auth_user)):
     return {"message": "You got my secret, welcome", "user_info": user.username}
+
+
+if __name__ == '__main__':
+    uvicorn.run("main:app", host="0.0.0.0", log_level="info")
